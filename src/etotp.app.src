@@ -1,0 +1,16 @@
+{application, etotp,
+ [{description, "TOTP Generator"},
+  {vsn, {cmd, "./ebump current"}},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib,
+    ebase32,
+    crypto
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
