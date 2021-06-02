@@ -50,7 +50,7 @@ htop(Secret, Interval, Options) ->
   Message = <<Interval:8/big-unsigned-integer-unit:8>>,
 
   %% Hash
-  Hash = crypto:hmac(Digest, Key, Message),
+  Hash = crypto:mac(hmac, Digest, Key, Message),
 
   %% Generate Token
   <<_:19/binary, _:4, Offset:4, _Rest/binary>> = Hash,
