@@ -1,11 +1,11 @@
 BASEDIR = $(shell pwd)
 APPNAME = $(shell basename $(BASEDIR))
 REBAR = rebar3
-ELVIS = $(BASEDIR)/elvis
 
-LINTERS = elvis xref eunit
+LINTERS = check-deps lint xref eunit
 
-.PHONY: elvis
+.PHONY: lint
+.DEFAULT_GOAL := help
 
 compile:
 	$(REBAR) compile
@@ -19,8 +19,11 @@ xref:
 dialyzer:
 	$(REBAR) dialyzer
 
-elvis:
-	$(ELVIS) rock -c elvis.config
+check-deps: ## check dependencies
+	$(REBAR) check-deps
+
+lint:
+	$(REBAR) lint
 
 test: $(LINTERS)
 
@@ -36,3 +39,6 @@ clean:
 
 test-coverage-report:
 	$(REBAR) cover --verbose
+
+help: ## Display help information
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

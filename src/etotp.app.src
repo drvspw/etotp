@@ -1,6 +1,6 @@
 {application, etotp,
  [{description, "TOTP Generator"},
-  {vsn, {cmd, "./ebump current"}},
+  {vsn, {cmd, "rebar3 bump"}},
   {registered, []},
   {applications,
    [kernel,
