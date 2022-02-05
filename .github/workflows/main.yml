@@ -9,13 +9,25 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: erlang:22.2.3
+      image: erlang:23.3.4
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Build and Test
       run: make test
+
+    - name: Create version.txt
+      run: rebar3 bump > version.txt
+
+    - name: Store version.txt as artifact
+      if: endsWith(github.ref, 'refs/heads/master')
+      uses: actions/upload-artifact@v2
+      with:
+        name: etotp-version
+        path: version.txt
 
   release:
     needs: build
@@ -34,15 +46,21 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Download version.txt
+      uses: actions/download-artifact@v2
+      with:
+        name: etotp-version
+
     - name: Push Tag
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
 
       run: |
-        go get -u github.com/tcnksm/ghr@v0.14.0
-        VERSION=$(./ebump current)
+        go install github.com/tcnksm/ghr@v0.14.0
+        VERSION=$(cat version.txt)
         REPO=etotp
         OWNER=drvspw
+        echo -n "Releasing ${VERSION}..."
         $HOME/go/bin/ghr \
             -t ${GITHUB_TOKEN} \
             -u ${OWNER} \
@@ -50,3 +68,10 @@ jobs:
             -c ${GITHUB_SHA} \
             -delete \
             ${VERSION} ./README.md
+        echo "done!"
+
+    - name: Delete artifacts
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: |
+          etotp-version
